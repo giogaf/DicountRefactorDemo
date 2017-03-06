@@ -22,6 +22,12 @@ class DescuentoOrdenTest extends TestCase
         ]);
     }
 
+    public function setUp()
+    {
+        $libros=$this->nuevaColleccionLibros();
+        $orden = new Orden($libros);
+    }
+
     /**
      * @test
      */
@@ -45,7 +51,22 @@ class DescuentoOrdenTest extends TestCase
         ]);
         $orden->aplicarDescuento($descuento);
         $this->assertEquals(290000,$orden->total());
+    }
 
+    /**
+     * @test
+     */
+    public function aplicar_descuento_en_porcentaje()
+    {
+        $libros=$this->nuevaColleccionLibros();
+        $orden = new Orden($libros);
+        $descuento= new Descuento([
+            'codigo'=>'OFF10',
+            'cantidad'=>10,
+            'es_porcentaje'=>true,
+        ]);
+        $orden->aplicarDescuento($descuento);
+        $this->assertEquals(270000,$orden->total());
     }
 
 }
