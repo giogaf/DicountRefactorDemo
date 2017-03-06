@@ -42,10 +42,7 @@ class Orden extends Model
      */
     public function valorDescuento()
     {
-        if (isset($this->descuento)) {
-            return $this->descuento->calcularCantidad($this->valorBruto());
-        }
-        return 0;
+            return $this->descuento->calcularCantidad($this);
     }
 
     /**
@@ -54,5 +51,13 @@ class Orden extends Model
     public function valorBruto()
     {
         return $this->libros->sum('precio');
+    }
+
+    /**
+     * @return int
+     */
+    public function cantidad()
+    {
+        return $this->libros->count();
     }
 }

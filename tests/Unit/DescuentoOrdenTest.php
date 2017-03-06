@@ -3,7 +3,10 @@
 namespace Tests\Unit;
 
 use App\Models\Book;
-use App\Models\Descuento;
+use App\Models\DescuentoDinero;
+use App\Models\DescuentoNulo;
+use App\Models\DescuentoPorcentaje;
+use App\Models\DescuentoUnidades;
 use App\Models\Orden;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
@@ -35,6 +38,7 @@ class DescuentoOrdenTest extends TestCase
     {
         $libros=$this->nuevaColleccionLibros();
         $orden = new Orden($libros);
+        $orden->aplicarDescuento(new DescuentoNulo());
         $this->assertEquals(300000, $orden->total());
     }
 
@@ -45,7 +49,7 @@ class DescuentoOrdenTest extends TestCase
     {
         $libros=$this->nuevaColleccionLibros();
         $orden = new Orden($libros);
-        $descuento= new Descuento([
+        $descuento= new DescuentoDinero([
             'codigo'=>'OFF10',
             'cantidad'=>10000,
         ]);
@@ -60,13 +64,43 @@ class DescuentoOrdenTest extends TestCase
     {
         $libros=$this->nuevaColleccionLibros();
         $orden = new Orden($libros);
-        $descuento= new Descuento([
+        $descuento= new DescuentoPorcentaje([
             'codigo'=>'OFF10',
             'cantidad'=>10,
-            'es_porcentaje'=>true,
         ]);
         $orden->aplicarDescuento($descuento);
         $this->assertEquals(270000,$orden->total());
     }
 
+    /**
+     * @test
+     */
+    public function aplicar_descuento_unidades()
+    {
+        $libros=$this->nuevaColleccionLibros();
+        $orden = new Orden($libros);
+        $descuento= new DescuentoUnidades([
+            'codigo'=>'OFF10',
+            'cantidad'=>10,
+            'unidades'=>2,  //unidades mínimas
+        ]);
+        $orden->aplicarDescuento($descuento);
+        $this->assertEquals(270000,$orden->total());
+    }
+
+    /**
+     * @test
+     */
+    public function no_aplicar_descuento_unidades()
+    {
+        $libros=$this->nuevaColleccionLibros();
+        $orden = new Orden($libros);
+        $descuento= new DescuentoUnidades([
+            'codigo'=>'OFF10',
+            'cantidad'=>10,
+            'unidades'=>5,  //unidades mínimas
+        ]);
+        $orden->aplicarDescuento($descuento);
+        $this->assertEquals(300000,$orden->total());
+    }
 }
