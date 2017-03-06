@@ -2,19 +2,50 @@
 
 namespace Tests\Unit;
 
+use App\Models\Book;
+use App\Models\Descuento;
+use App\Models\Orden;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 class DescuentoOrdenTest extends TestCase
 {
-    /**
-     * A basic test example.
-     *
-     * @return void
-     */
-    public function testExample()
+
+
+    public function nuevaColleccionLibros()
     {
-        $this->assertTrue(true);
+        return collect([
+            new Book(['titulo'=>'libro1', 'precio'=>50000]),
+            new Book(['titulo'=>'libro2', 'precio'=>100000]),
+            new Book(['titulo'=>'libro3', 'precio'=>150000]),
+        ]);
     }
+
+    /**
+     * @test
+     */
+    public function no_plicar_descuento()
+    {
+        $libros=$this->nuevaColleccionLibros();
+        $orden = new Orden($libros);
+        $this->assertEquals(300000, $orden->total());
+    }
+
+    /**
+     * @test
+     */
+    public function  aplicar_descuento_en_dinero()
+    {
+        $libros=$this->nuevaColleccionLibros();
+        $orden = new Orden($libros);
+        $descuento= new Descuento([
+            'codigo'=>'OFF10',
+            'cantidad'=>10000,
+        ]);
+        $orden->aplicarDescuento($descuento);
+        $this->assertEquals(290000,$orden->total());
+
+    }
+
 }
