@@ -8,4 +8,15 @@ class Descuento extends Model
 {
     //
     protected $guarded=[];
+
+
+    public function calcularCantidad($valorTotal)
+    {
+        if ($this->es_porcentaje)
+        {
+            return $valorTotal * $this->cantidad/100;
+        }
+        return $this->cantidad;
+
+    }
 }

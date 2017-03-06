@@ -26,7 +26,7 @@ class Orden extends Model
      */
     public function total()
     {
-        return $this->libros->sum('precio') - $this->descuento();
+        return $this->valorBruto() - $this->valorDescuento();
     }
 
     /**
@@ -40,18 +40,19 @@ class Orden extends Model
     /**
      * @return int
      */
-    public function descuento()
+    public function valorDescuento()
     {
         if (isset($this->descuento)) {
-            if ($this->descuento->es_porcentaje)
-            {
-                $valorDescuento = $this->libros->sum('precio') * $this->descuento->cantidad/100;
-            }else{
-                $valorDescuento = $this->descuento->cantidad;
-            }
-            return $valorDescuento;
-        } else {
-            return 0;
+            return $this->descuento->calcularCantidad($this->valorBruto());
         }
+        return 0;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function valorBruto()
+    {
+        return $this->libros->sum('precio');
     }
 }
